@@ -115,4 +115,9 @@ class HTML{
 
 		return $html;
 	}
+
+	//Echo the result of the HTML::build()
+	public static function render($tag, $content = null, $atts = null){
+		echo self::build($tag, $content, $atts);
+	}
 }
