@@ -135,7 +135,7 @@ class HTML{
 							$value = implode(' ', $value);
 						}
 
-						$html .= " $atts=\"$value\"";
+						$html .= " $attr=\"$value\"";
 					}
 				}
 			}
@@ -194,7 +194,7 @@ class HTML{
 	 */
 	public static function __callStatic($name, $arguments){
 		//Check if it's a tag with primary attributes
-		if(in_array($name, self::$primary_atts)){
+		if(array_key_exists($name, self::$primary_atts)){
 			$primaries = self::$primary_atts[$name];
 
 			//If not a self closing tag, first argument must be content
@@ -213,11 +213,14 @@ class HTML{
 				}
 
 				//Set the default attribute
-				$atts[$primary] = $default;
+				if(!is_null($default)){
+					$atts[$primary] = $default;
+				}
 
 				//See if there is anything left in $arguments
 				if($arguments){
 					$arg = array_shift($arguments);
+					var_dump($arg);
 
 					//Check if it's an array, make that the rest of $atts if so
 					if(is_array($arg)){
