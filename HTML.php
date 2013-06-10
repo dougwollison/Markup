@@ -142,7 +142,7 @@ class HTML{
 		}
 
 		//Self close the tag or append the content and close
-		if(in_array($tag, self::$self_closing)){
+		if(in_array($tag, self::$selfclosing)){
 			$html .= '/>';
 		}else{
 			$html .= ">$content</$tag>";
@@ -198,7 +198,7 @@ class HTML{
 			$primaries = self::$primary_atts[$name];
 
 			//If not a self closing tag, first argument must be content
-			if(!in_array($tag, self::$self_closing)){
+			if(!in_array($tag, self::$selfclosing)){
 				$content = array_shift($arguments);
 			}else{
 				$content = null;
