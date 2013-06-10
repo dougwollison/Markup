@@ -198,7 +198,7 @@ class HTML{
 			$primaries = self::$primary_atts[$name];
 
 			//If not a self closing tag, first argument must be content
-			if(!in_array($tag, self::$selfclosing_tags)){
+			if(!in_array($name, self::$selfclosing_tags)){
 				$content = array_shift($arguments);
 			}else{
 				$content = null;
