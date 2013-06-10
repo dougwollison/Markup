@@ -77,12 +77,12 @@ class HTML{
 		'button' => array('type' => 'button', 'name', 'value'),
 		'iframe' => array('src', 'width', 'height'),
 		'img' => array('src', 'width', 'height', 'alt'),
-		'input' => array('name', 'value', 'type' => 'text'),
+		'input' => array('name', 'value', 'type' => 'text', 'checked'),
 		'label' => array('for'),
 		'link' => array('href', 'rel' => 'stylesheet'),
 		'meta' => array('name', 'content', 'scheme'),
 		'optgroup' => array('label'),
-		'option' => array('value'),
+		'option' => array('value', 'selected'),
 		'script' => array('src'),
 		'select' => array('name', 'value'),
 		'style' => array('type' => 'text/css'),
@@ -103,9 +103,9 @@ class HTML{
 		if(is_array($content)){
 			list($atts, $content) = array($content, $atts);
 		}
-		
+
 		$html = "<$tag";
-		
+
 		//Build the array of allowed attributes for this tag
 		$allowed_attributes = self::$allowed_attributes[0];
 		if(isset(self::$allowed_attributes[$tag])){
@@ -119,7 +119,7 @@ class HTML{
 				if(is_numeric($attr)){
 					$attr = $value;
 				}
-			
+
 				//Make sure it is within the allowed attributes list or the data array
 				if(in_array($attr, $allowed_attributes) || ($attr == 'data' && is_array($value))){
 					if($attr == 'data'){
@@ -134,7 +134,7 @@ class HTML{
 						if(is_array($value)){
 							$value = implode(' ', $value);
 						}
-						
+
 						$html .= " $atts=\"$value\"";
 					}
 				}
@@ -161,12 +161,12 @@ class HTML{
 	public static function render($tag, $content = null, $atts = null){
 		echo self::build($tag, $content, $atts);
 	}
-	
+
 	/**
 	 * Overloading; dynamically build tag processing arguments based on method name
 	 *
 	 * Uses HTML::$primary_atts as basis for what arguments go to what attributes
-	 * 
+	 *
 	 * Tags that can hold content must have their content passed first,
 	 * then the primary attributes in appropriate order, followed at last
 	 * by an array of additional attributes if needed
@@ -196,14 +196,14 @@ class HTML{
 		//Check if it's a tag with primary attributes
 		if(in_array($name, self::$primary_atts)){
 			$primaries = self::$primary_atts[$name];
-		
+
 			//If not a self closing tag, first argument must be content
 			if(!in_array($tag, self::$self_closing)){
 				$content = array_shift($arguments);
 			}else{
 				$content = null;
 			}
-			
+
 			$atts = array();
 			//Run through the $defaults
 			foreach($primaries as $primary => $default){
@@ -211,21 +211,31 @@ class HTML{
 					$primary = $default;
 					$default = null;
 				}
-				
+
 				//Set the default attribute
 				$atts[$primary] = $default;
-				
+
 				//See if there is anything left in $arguments
 				if($arguments){
 					$arg = array_shift($arguments);
-					
+
 					//Check if it's an array, make that the rest of $atts if so
 					if(is_array($arg)){
 						$atts = array_merge($atts, $arg);
 						break;
 					}else{
 						//Otherwise, assign the value to the current primary attribute
-						$atts[$primary] = array_shift($arguments);
+
+						//But first, see if it's a boolean attribute
+						if(in_array($primary, self::$boolean_atts)){
+							//Add the boolean attr if $arg tests true
+							if($arg){
+								$atts[] = $primary;
+							}
+						}else{
+							//Otherwise, make it the value of $arg
+							$atts[$primary] = $arg;
+						}
 					}
 				}
 			}
@@ -233,7 +243,7 @@ class HTML{
 			if(isset($arguments[0])) $content = $arguments[0];
 			if(isset($arguments[1])) $atts = $arguments[1];
 		}
-		
+
 		return self::build($name, $content, $atts);
 	}
 }
